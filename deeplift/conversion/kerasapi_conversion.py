@@ -28,7 +28,7 @@ KerasKeys = deeplift.util.enum(
     strides='strides',
     mode='mode',
     weights='weights',
-    batch_input_shape='batch_input_shape',
+    batch_input_shape='build_input_shape',
     axis='axis',
     epsilon='epsilon',
 )
@@ -363,6 +363,7 @@ def convert_model_from_saved_files(
     if (model_class_name=="Sequential"):
         if (isinstance(model_config, list)==False): #keras 2.2.3 API change
             model_config = model_config["layers"]
+            model_config[0]['config'][KerasKeys.batch_input_shape] = model_class_and_config["config"][KerasKeys.batch_input_shape]
         layer_configs = model_config
         model_conversion_function = convert_sequential_model
     elif (model_class_name=="Model"):
@@ -402,7 +403,6 @@ def convert_model_from_saved_files(
             layer_weights = [np.array(model_weights[layer_name][x]) for x in
                              model_weights[layer_name].attrs["weight_names"]]
             layer_config["config"]["weights"] = layer_weights
-        
     return model_conversion_function(model_config=model_config, **kwargs) 
 
 
@@ -425,7 +425,7 @@ def insert_weights_into_nested_model_config(nested_model_weights,
                 layer_name = layer_config["config"]["name"] 
                 layer_weights = [np.array(nested_model_weights[x]) for x in
                                  nested_model_weights.keys() if
-                                 x.startswith(layer_name+"/")]
+                                 x.decode().startswith(layer_name+"/")]
                 if (len(layer_weights) > 0):
                     layer_config["config"]["weights"] = layer_weights
  
@@ -477,6 +477,8 @@ def sequential_container_conversion(config,
     if (converted_layers is None):
         converted_layers = []
     name_prefix=name
+    if 'layers' in config and len(config) == 3:
+        config = config['layers']
     for layer_idx, layer_config in enumerate(config):
         modes_to_pass = {'dense_mxts_mode': dense_mxts_mode,
                          'conv_mxts_mode': conv_mxts_mode,

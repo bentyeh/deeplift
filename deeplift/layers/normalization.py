@@ -44,8 +44,8 @@ class BatchNormalization(SingleInputMixin, Node):
         return input_shape
 
     def _build_activation_vars(self, input_act_vars):
-        new_shape = [(1 if (i != self.axis\
-                        and i != (len(self._shape)+self.axis)) #neg self.axis
+        new_shape = [(1 if (i != self.axis[0]\
+                        and i != (len(self._shape)+self.axis[0])) #neg self.axis
                         else self._shape[i])
                        for i in range(len(self._shape))] 
         self.reshaped_mean = self.mean.reshape(new_shape)
