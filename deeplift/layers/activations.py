@@ -209,6 +209,16 @@ class ReLU(PReLU):
         super(ReLU, self).__init__(alpha=0.0, **kwargs)
 
 
+class Swish(Activation):
+
+    def _build_activation_vars(self, input_act_vars):
+        return input_act_vars * tf.nn.sigmoid(input_act_vars)
+
+    def _get_gradient_at_activation(self, activation_vars):
+        s = tf.nn.sigmoid(activation_vars)
+        return s * (activation_vars - activation_vars * s + 1)
+
+
 class Sigmoid(Activation):
 
     def _build_activation_vars(self, input_act_vars):

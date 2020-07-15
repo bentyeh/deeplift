@@ -37,6 +37,7 @@ KerasKeys = deeplift.util.enum(
 ActivationTypes = deeplift.util.enum(
     relu='relu',
     prelu='prelu',
+    swish='swish',
     sigmoid='sigmoid',
     softmax='softmax',
     linear='linear')
@@ -66,6 +67,11 @@ def prelu_conversion(config, name, verbose,
 
 def relu_conversion(name, verbose, nonlinear_mxts_mode, **kwargs):
     return [layers.activations.ReLU(name=name, verbose=verbose,
+                       nonlinear_mxts_mode=nonlinear_mxts_mode)]
+
+
+def swish_conversion(name, verbose, nonlinear_mxts_mode, **kwargs):
+    return [layers.activations.Swish(name=name, verbose=verbose,
                        nonlinear_mxts_mode=nonlinear_mxts_mode)]
 
 
@@ -297,6 +303,7 @@ def activation_to_conversion_function(activation_name):
     activation_dict = {
         ActivationTypes.linear: linear_conversion,
         ActivationTypes.relu: relu_conversion,
+        ActivationTypes.swish: swish_conversion,
         ActivationTypes.sigmoid: sigmoid_conversion,
         ActivationTypes.softmax: softmax_conversion
     }
